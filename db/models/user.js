@@ -1,43 +1,102 @@
 'use strict';
-const { Sequelize } = require('sequelize');
-const sequelize = require('../../config/database')
 
+const {Model,Sequelize, DataTypes} = require('sequelize')
+const sequelize = require('../../config/database')
+const bcrypt = require ('bcrypt');
+const AppError = require('../../utils/appError');
 
 module.exports = sequelize.define('user',{
         id: {
           allowNull: false,
           autoIncrement: true,
           primaryKey: true,
-          type: Sequelize.INTEGER
+          type: DataTypes.INTEGER,
         },
         userType: {
-          type: Sequelize.ENUM('0','1','2')
+          type: DataTypes.ENUM('0','1','2'),
+          allowNull:false,
+          validate:{
+            notNull:{
+              msg:'userType can not be null'
+            },          
+            notEmpty:{
+              msg:'userType cannot be empty'
+            },
+          },
         },
         firstName: {
-          type: Sequelize.STRING
+          type: DataTypes.STRING,
+          allowNull:false,
+          validate:{
+            notNull:{
+              msg:'firstName can not be null'
+            },            
+            notEmpty:{
+              msg:'firstName cannot be empty'
+            },
+          },
         },
         lastName: {
-          type: Sequelize.STRING
+          type: DataTypes.STRING,
+          allowNull:false,
+          validate:{
+            notNull:{
+              msg:'lastName can not be null'
+            },            
+            notEmpty:{
+              msg:'lastName cannot be empty'
+            },
+          },
         },
         email: {
-          type: Sequelize.STRING
+          type: DataTypes.STRING,
+          allowNull:false,
+          validate:{
+            notNull:{
+              msg:'email can not be null'
+            },            
+            notEmpty:{
+              msg:'email cannot be empty'
+            },
+            isEmail:{
+              msg:'Invalid email id'
+            },
+          },
         },
         password: {
-          type: Sequelize.STRING
+          type: DataTypes.STRING,
+          allowNull:false,
+          validate:{
+            notNull:{
+              msg:'password can not be null'
+            },
+            notEmpty:{
+              msg:'password cannot be empty'
+            },
+            //len:[2,10]
+          },
         },
         confirmPassword:{
-          type:Sequelize.VIRTUAL
+          type:DataTypes.VIRTUAL,
+          set(value){
+            if(value === this.password){
+              const hashPassword = bcrypt.hashSync(value,10) 
+              this.setDataValue('password',hashPassword)
+            }else{
+              throw new AppError('Password and confirm, password must be the same',400)
+            }
+          },
         },
         createdAt: {
           allowNull: false,
-          type: Sequelize.DATE
+          type: DataTypes.DATE
         },
         updatedAt: {
           allowNull: false,
-          type: Sequelize.DATE
+          type: DataTypes.DATE
         },
         deletedAt:{
-          type:Sequelize.DATE
+          type:DataTypes.DATE
         }
 },{
   paranoid:true,
