@@ -69,4 +69,9 @@ const login = catchAsync(async(req,res,next)=>{
     })
 })
 
+// const authentication = catchAsync(async (req,res,next)=>{
+//     let idToken =' '
+//     if(req.headers.authorization )
+// })
+
 module.exports = {signup,login}
